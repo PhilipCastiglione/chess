@@ -71,19 +71,21 @@ class Board
 
   def calculate_bP_moves(piece, pieces)
     moveable_squares = []
+    white_squares = pieces.white.map {|p| p[1]}
+    black_squares = pieces.black.map {|p| p[1]}
     square = [piece[1] - 8]
-    if !pieces.white.map {|p| p[1]}.include? square &&
-       !pieces.black.map {|p| p[1]}.include? square
-      moveable_squares << square
-    end
-    square = [piece[1] - 7]
-    if pieces.white.map {|p| p[1]}.include? square &&
-       !piece[1] % 8 == 0
+    if !white_squares.include? square &&
+       !black_squares.include? square
       moveable_squares << square
     end
     square = [piece[1] - 9]
-    if pieces.white.map {|p| p[1]}.include? square &&
-       !(piece[1] - 7) % 8 == 0
+    if white_squares.include? square &&
+       !left_column? piece
+      moveable_squares << square
+    end
+    square = [piece[1] - 7]
+    if white_squares.include? square &&
+       !right_column? piece
       moveable_squares << square
     end
     moveable_squares 
