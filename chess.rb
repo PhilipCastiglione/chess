@@ -31,21 +31,39 @@ class Board
     end
   end
 
+  def left_column?(piece)
+    piece[1] % 8 == 0
+  end
+
+  def second_left_column?(piece)
+    (piece[1] + 1) % 8 == 0
+  end
+
+  def second_right_column?(piece)
+    (piece[1] + 6) % 8 == 0
+  end
+
+  def right_column?(piece)
+    (piece[1] + 7) % 8 == 0
+  end
+
   def calculate_wP_moves(piece, pieces)
     moveable_squares = []
+    white_squares = pieces.white.map {|p| p[1]}
+    black_squares = pieces.black.map {|p| p[1]}
     square = [piece[1] + 8]
-    if !pieces.white.map {|p| p[1]}.include? square &&
-       !pieces.black.map {|p| p[1]}.include? square
+    if !white_squares.include? square &&
+       !black_squares.include? square
       moveable_squares << square
     end
     square = [piece[1] + 7]
-    if pieces.black.map {|p| p[1]}.include? square &&
-       !piece[1] % 8 == 0
+    if black_squares.include? square &&
+       !left_column? piece
       moveable_squares << square
     end
     square = [piece[1] + 9]
-    if pieces.black.map {|p| p[1]}.include? square &&
-       !(piece[1] - 7) % 8 == 0
+    if black_squares.include? square &&
+       !right_column? piece
       moveable_squares << square
     end
     moveable_squares 
@@ -74,13 +92,36 @@ class Board
   def calculate_wN_moves(piece, pieces)
     moveable_squares = []
     square = [piece[1] - 17]
+    if !square <= 15 &&
+       !square % 8 == 0 &&
+       !pieces.white.map {|p| p[1]}.include? square
+      moveable_squares << square
+    end
     square = [piece[1] - 15]
+    if !square <= 15 &&
+       !(square - 7) % 8 == 0 &&
+       !pieces.white.map {|p| p[1]}.include? square
+      moveable_squares << square
+    end
     square = [piece[1] - 10]
+    if !square <= 7 &&
+       !square % 8 == 0 &&
+       !(square - 1) % 8 == 0 &&
+       !pieces.white.map {|p| p[1]}.include? square
+      moveable_squares << square
+    end
     square = [piece[1] - 6]
+    if !square <= 7 &&
+       !(square - 6) % 8 == 0 &&
+       !(square - 7) % 8 == 0 &&
+       !pieces.white.map {|p| p[1]}.include? square
+      moveable_squares << square
+    end
     square = [piece[1] + 6]
     square = [piece[1] + 10]
     square = [piece[1] + 15]
     square = [piece[1] + 17]
+    moveable_squares
   end
 
   def calculate_bN_moves(piece, pieces)
