@@ -47,23 +47,39 @@ class Board
     (piece[1] + 7) % 8 == 0
   end
 
+  def bottom_row?(piece)
+    piece[1] <= 7
+  end
+
+  def second_bottom_row?(piece)
+    piece[1] <= 15 && piece[1] > 7
+  end
+
+  def second_top_row?(piece)
+    piece[1] >= 48 && piece[1] < 56
+  end
+
+  def top_row?(piece)
+    piece[1] >= 56
+  end
+
   def calculate_wP_moves(piece, pieces)
     moveable_squares = []
     white_squares = pieces.white.map {|p| p[1]}
     black_squares = pieces.black.map {|p| p[1]}
     square = [piece[1] + 8]
-    if !white_squares.include? square &&
-       !black_squares.include? square
+    if !white_squares.include?(square) &&
+       !black_squares.include?(square)
       moveable_squares << square
     end
     square = [piece[1] + 7]
-    if black_squares.include? square &&
-       !left_column? piece
+    if black_squares.include?(square) &&
+       !left_column?(piece)
       moveable_squares << square
     end
     square = [piece[1] + 9]
-    if black_squares.include? square &&
-       !right_column? piece
+    if black_squares.include?(square) &&
+       !right_column?(piece)
       moveable_squares << square
     end
     moveable_squares 
@@ -74,18 +90,18 @@ class Board
     white_squares = pieces.white.map {|p| p[1]}
     black_squares = pieces.black.map {|p| p[1]}
     square = [piece[1] - 8]
-    if !white_squares.include? square &&
-       !black_squares.include? square
+    if !white_squares.include?(square) &&
+       !black_squares.include?(square)
       moveable_squares << square
     end
     square = [piece[1] - 9]
-    if white_squares.include? square &&
-       !left_column? piece
+    if white_squares.include?(square) &&
+       !left_column?(piece)
       moveable_squares << square
     end
     square = [piece[1] - 7]
-    if white_squares.include? square &&
-       !right_column? piece
+    if white_squares.include?(square) &&
+       !right_column?(piece)
       moveable_squares << square
     end
     moveable_squares 
@@ -93,32 +109,18 @@ class Board
 
   def calculate_wN_moves(piece, pieces)
     moveable_squares = []
+    white_squares = pieces.white.map {|p| p[1]}
+    black_squares = pieces.black.map {|p| p[1]}
     square = [piece[1] - 17]
-    if !square <= 15 &&
-       !square % 8 == 0 &&
-       !pieces.white.map {|p| p[1]}.include? square
+    if !bottom_row?(piece) &&
+       !second_bottom_row?(piece) &&
+       !left_column?(piece) &&
+       !white_square.include?(square)
       moveable_squares << square
     end
     square = [piece[1] - 15]
-    if !square <= 15 &&
-       !(square - 7) % 8 == 0 &&
-       !pieces.white.map {|p| p[1]}.include? square
-      moveable_squares << square
-    end
     square = [piece[1] - 10]
-    if !square <= 7 &&
-       !square % 8 == 0 &&
-       !(square - 1) % 8 == 0 &&
-       !pieces.white.map {|p| p[1]}.include? square
-      moveable_squares << square
-    end
     square = [piece[1] - 6]
-    if !square <= 7 &&
-       !(square - 6) % 8 == 0 &&
-       !(square - 7) % 8 == 0 &&
-       !pieces.white.map {|p| p[1]}.include? square
-      moveable_squares << square
-    end
     square = [piece[1] + 6]
     square = [piece[1] + 10]
     square = [piece[1] + 15]
