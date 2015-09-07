@@ -15,69 +15,6 @@ class Board
     return nil
   end
 
-  def testknight
-    p @pieces[:white][1]
-    p calculate_wN_moves(@pieces[:white][1], @pieces)
-    p @pieces[:white][6]
-    p calculate_wN_moves(@pieces[:white][6], @pieces)
-    p @pieces[:black][9]
-    p calculate_bN_moves(@pieces[:black][9], @pieces)
-    p @pieces[:black][14]
-    p calculate_bN_moves(@pieces[:black][14], @pieces)
-  end
-
-  def testbishop
-    p "square 35 white"
-    p calculate_wB_moves(['',35],@pieces)
-    p "square 36 white"
-    p calculate_wB_moves(['',36],@pieces)
-    p "square 35 black"
-    p calculate_bB_moves(['',35],@pieces)
-    p "square 36 black"
-    p calculate_bB_moves(['',36],@pieces)
-    p "square 23 white"
-    p calculate_wB_moves(['',23],@pieces)
-    p "square 23 black"
-    p calculate_bB_moves(['',23],@pieces)
-  end
-
-  def testrook
-    p "square 35 white"
-    p calculate_wR_moves(['',35],@pieces)
-    p "square 36 white"
-    p calculate_wR_moves(['',36],@pieces)
-    p "square 35 black"
-    p calculate_bR_moves(['',35],@pieces)
-    p "square 36 black"
-    p calculate_bR_moves(['',36],@pieces)
-    p "square 23 white"
-    p calculate_wR_moves(['',23],@pieces)
-    p "square 23 black"
-    p calculate_bR_moves(['',23],@pieces)
-  end
-
-  def testrow
-    p in_row?(1,['',3])
-    p in_row?(2,['',9])
-    p in_row?(3,['',21])
-    p in_row?(4,['',28])
-    p in_row?(5,['',38])
-    p in_row?(6,['',41])
-    p in_row?(7,['',54])
-    p in_row?(8,['',63])
-  end
-
-  def testcol
-    p in_column?(1,['',8])
-    p in_column?(2,['',9])
-    p in_column?(3,['',34])
-    p in_column?(4,['',35])
-    p in_column?(5,['',20])
-    p in_column?(6,['',45])
-    p in_column?(7,['',54])
-    p in_column?(8,['',63])
-  end
-
   private
 
   def starting_pieces
