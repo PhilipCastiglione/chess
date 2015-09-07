@@ -47,7 +47,7 @@ class Board
         color == "b" ||
         !@white_squares.include?(target_square) &&
         color == "w")
-      @moveable_squares << (target_square)
+      @moveable_squares << target_square
     end
   end
 
@@ -57,12 +57,12 @@ class Board
        !in_column?(col, square)
       if !@black_squares.include?(target_square) &&
          color == "b"
-        @moveable_squares << (target_square)
-        add_square?(target_square, row, col, offset) unless @white_squares.include?(target_square)
+        @moveable_squares << target_square
+        add_square?(target_square, row, col, offset, color) unless @white_squares.include?(target_square)
       elsif !@white_squares.include?(target_square) &&
             color == "w"
-        @moveable_squares << (target_square)
-        add_square?(target_square, row, col, offset) unless @black_squares.include?(target_square)
+        @moveable_squares << target_square
+        add_square?(target_square, row, col, offset, color) unless @black_squares.include?(target_square)
       end
     end
   end
