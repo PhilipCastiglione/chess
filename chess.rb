@@ -40,27 +40,29 @@ class Board
   end
 
   def add_single_square?(square, row, col, offset, color)
+    target_square = square + offset
     if !in_row?(row, square) &&
        !in_column?(col, square) &&
-       (!@black_squares.include?(square + offset) &&
+       (!@black_squares.include?(target_square) &&
         color == "b" ||
-        !@white_squares.include?(square + offest) &&
+        !@white_squares.include?(target_square) &&
         color == "w")
-      @moveable_squares << (square + offset)
+      @moveable_squares << (target_square)
     end
   end
 
-  def add_square?(square, row, col, offset)
+  def add_square?(square, row, col, offset, color)
+    target_square = square + offset
     if !in_row?(row, square) &&
        !in_column?(col, square)
-      if !@black_squares.include?(square + offset) &&
+      if !@black_squares.include?(target_square) &&
          color == "b"
-        @moveable_squares << (square + offset)
-        add_square?(square + offset, row, col, offset) unless @white_squares.include?(square + offset)
-      elsif !@white_squares.include?(square + offset) &&
+        @moveable_squares << (target_square)
+        add_square?(target_square, row, col, offset) unless @white_squares.include?(target_square)
+      elsif !@white_squares.include?(target_square) &&
             color == "w"
-        @moveable_squares << (square + offset)
-        add_square?(square + offset, row, col, offset) unless @black_squares.include?(square + offset)
+        @moveable_squares << (target_square)
+        add_square?(target_square, row, col, offset) unless @black_squares.include?(target_square)
       end
     end
   end
