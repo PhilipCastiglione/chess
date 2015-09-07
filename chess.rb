@@ -113,7 +113,7 @@ class Board
     end
   end
 
- def add_square?(square, row, col, offset)
+  def add_square?(square, row, col, offset)
     if !in_row?(row, square) &&
        !in_column?(col, square)
       if !@black_squares.include?(square + offset) &&
@@ -128,19 +128,9 @@ class Board
     end
   end
 
-  def calculate_wP_moves(piece, pieces)
+  def get_pawn_moves(piece, color)
     @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_single_square?(piece[1], 0, 0, 8, "w")
-    @moveable_squares 
-  end
-
-  def calculate_bP_moves(piece, pieces)
-    @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_single_square?(piece[1], 0, 0, -8, "b")
+    add_single_square?(piece[1], 0, 0, (color == 'w')? 8 : -8, color)
     @moveable_squares 
   end
 
@@ -270,107 +260,47 @@ class Board
     moveable_squares
   end
 
-  def calculate_wB_moves(piece, pieces)
+  def get_bishop_moves(piece, color)
     @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_square?(piece[1], 1, 1, -9, 'w')
-    add_square?(piece[1], 1, 8, -7, 'w')
-    add_square?(piece[1], 8, 1, 7, 'w')
-    add_square?(piece[1], 8, 8, 9, 'w')
+    add_square?(piece[1], 1, 1, -9, color)
+    add_square?(piece[1], 1, 8, -7, color)
+    add_square?(piece[1], 8, 1, 7, color)
+    add_square?(piece[1], 8, 8, 9, color)
     @moveable_squares
   end
 
-  def calculate_bB_moves(piece, pieces)
+  def get_rook_moves(piece, color)
     @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_square?(piece[1], 1, 1, -9, 'b')
-    add_square?(piece[1], 1, 8, -7, 'b')
-    add_square?(piece[1], 8, 1, 7, 'b')
-    add_square?(piece[1], 8, 8, 9, 'b')
+    add_square?(piece[1], 1, 0, -8, color)
+    add_square?(piece[1], 0, 1, -1, color)
+    add_square?(piece[1], 0, 8, 1, color)
+    add_square?(piece[1], 8, 0, 8, color)
     @moveable_squares
   end
 
-  def calculate_wR_moves(piece, pieces)
+  def get_queen_moves(piece, color)
     @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_square?(piece[1], 1, 0, -8, 'w')
-    add_square?(piece[1], 0, 1, -1, 'w')
-    add_square?(piece[1], 0, 8, 1, 'w')
-    add_square?(piece[1], 8, 0, 8, 'w')
+    add_square?(piece[1], 1, 1, -9, color)
+    add_square?(piece[1], 1, 0, -8, color)
+    add_square?(piece[1], 1, 8, -7, color)
+    add_square?(piece[1], 0, 1, -1, color)
+    add_square?(piece[1], 0, 8, 1, color)
+    add_square?(piece[1], 8, 1, 7, color)
+    add_square?(piece[1], 8, 0, 8, color)
+    add_square?(piece[1], 8, 8, 9, color)
     @moveable_squares
   end
 
-  def calculate_bR_moves(piece, pieces)
+  def get_king_moves(piece, color)
     @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_square?(piece[1], 1, 0, -8, 'b')
-    add_square?(piece[1], 0, 1, -1, 'b')
-    add_square?(piece[1], 0, 8, 1, 'b')
-    add_square?(piece[1], 8, 0, 8, 'b')
-    @moveable_squares
-  end
-
-  def calculate_wQ_moves(piece, pieces)
-    @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_square?(piece[1], 1, 1, -9, 'w')
-    add_square?(piece[1], 1, 0, -8, 'w')
-    add_square?(piece[1], 1, 8, -7, 'w')
-    add_square?(piece[1], 0, 1, -1, 'w')
-    add_square?(piece[1], 0, 8, 1, 'w')
-    add_square?(piece[1], 8, 1, 7, 'w')
-    add_square?(piece[1], 8, 0, 8, 'w')
-    add_square?(piece[1], 8, 8, 9, 'w')
-    @moveable_squares
-  end
-
-  def calculate_bQ_moves(piece, pieces)
-    @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_square?(piece[1], 1, 1, -9, 'b')
-    add_square?(piece[1], 1, 0, -8, 'b')
-    add_square?(piece[1], 1, 8, -7, 'b')
-    add_square?(piece[1], 0, 1, -1, 'b')
-    add_square?(piece[1], 0, 8, 1, 'b')
-    add_square?(piece[1], 8, 1, 7, 'b')
-    add_square?(piece[1], 8, 0, 8, 'b')
-    add_square?(piece[1], 8, 8, 9, 'b')
-    @moveable_squares
-  end
-
-  def calculate_wK_moves(piece, pieces)
-    @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_single_square?(piece[1], 1, 1, -9, 'w')
-    add_single_square?(piece[1], 1, 0, -8, 'w')
-    add_single_square?(piece[1], 1, 8, -7, 'w')
-    add_single_square?(piece[1], 0, 1, -1, 'w')
-    add_single_square?(piece[1], 0, 8, 1, 'w')
-    add_single_square?(piece[1], 8, 1, 7, 'w')
-    add_single_square?(piece[1], 8, 0, 8, 'w')
-    add_single_square?(piece[1], 8, 8, 9, 'w')
-    @moveable_squares
-  end
-
-  def calculate_bK_moves(piece, pieces)
-    @moveable_squares = []
-    @white_squares = pieces[:white].map {|p| p[1]}
-    @black_squares = pieces[:black].map {|p| p[1]}
-    add_single_square?(piece[1], 1, 1, -9, 'b')
-    add_single_square?(piece[1], 1, 0, -8, 'b')
-    add_single_square?(piece[1], 1, 8, -7, 'b')
-    add_single_square?(piece[1], 0, 1, -1, 'b')
-    add_single_square?(piece[1], 0, 8, 1, 'b')
-    add_single_square?(piece[1], 8, 1, 7, 'b')
-    add_single_square?(piece[1], 8, 0, 8, 'b')
-    add_single_square?(piece[1], 8, 8, 9, 'b')
+    add_single_square?(piece[1], 1, 1, -9, color)
+    add_single_square?(piece[1], 1, 0, -8, color)
+    add_single_square?(piece[1], 1, 8, -7, color)
+    add_single_square?(piece[1], 0, 1, -1, color)
+    add_single_square?(piece[1], 0, 8, 1, color)
+    add_single_square?(piece[1], 8, 1, 7, color)
+    add_single_square?(piece[1], 8, 0, 8, color)
+    add_single_square?(piece[1], 8, 8, 9, color)
     @moveable_squares
   end
 end
