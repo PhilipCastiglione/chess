@@ -41,6 +41,21 @@ class Board
     p calculate_bB_moves(['',23],@pieces)
   end
 
+  def testrook
+    p "square 35 white"
+    p calculate_wR_moves(['',35],@pieces)
+    p "square 36 white"
+    p calculate_wR_moves(['',36],@pieces)
+    p "square 35 black"
+    p calculate_bR_moves(['',35],@pieces)
+    p "square 36 black"
+    p calculate_bR_moves(['',36],@pieces)
+    p "square 23 white"
+    p calculate_wR_moves(['',23],@pieces)
+    p "square 23 black"
+    p calculate_bR_moves(['',23],@pieces)
+  end
+
   def testrow
     p in_row?(1,['',3])
     p in_row?(2,['',9])
@@ -344,9 +359,81 @@ class Board
   end
 
   def calculate_wR_moves(piece, pieces)
+    @moveable_squares = []
+    @white_squares = pieces[:white].map {|p| p[1]}
+    @black_squares = pieces[:black].map {|p| p[1]}
+    def add_s_square?(square)
+      if !in_row?(1, square) &&
+         !@white_squares.include?(square - 8)
+        @moveable_squares << (square - 8)
+        add_s_square?(square - 8) unless @black_squares.include?(square - 8)
+      end
+    end
+    add_s_square?(piece[1])
+    def add_w_square?(square)
+      if !in_column?(1, square) &&
+         !@white_squares.include?(square - 1)
+        @moveable_squares << (square - 1)
+        add_w_square?(square - 1) unless @black_squares.include?(square - 1)
+      end
+    end
+    add_w_square?(piece[1])
+    def add_e_square?(square)
+      if !in_column?(8, square) &&
+         !@white_squares.include?(square + 1)
+        @moveable_squares << (square + 1)
+        add_e_square?(square + 1) unless @black_squares.include?(square + 1)
+      end
+    end
+    add_e_square?(piece[1])
+    def add_n_square?(square)
+      if !in_row?(8, square) &&
+         !@white_squares.include?(square + 8)
+        @moveable_squares << (square + 8)
+        add_n_square?(square + 8) unless @black_squares.include?(square + 8)
+      end
+    end
+    add_n_square?(piece[1])
+    @moveable_squares
   end
 
   def calculate_bR_moves(piece, pieces)
+    @moveable_squares = []
+    @white_squares = pieces[:white].map {|p| p[1]}
+    @black_squares = pieces[:black].map {|p| p[1]}
+    def add_s_square?(square)
+      if !in_row?(1, square) &&
+         !@black_squares.include?(square - 8)
+        @moveable_squares << (square - 8)
+        add_s_square?(square - 8) unless @white_squares.include?(square - 8)
+      end
+    end
+    add_s_square?(piece[1])
+    def add_w_square?(square)
+      if !in_column?(1, square) &&
+         !@black_squares.include?(square - 1)
+        @moveable_squares << (square - 1)
+        add_w_square?(square - 1) unless @white_squares.include?(square - 1)
+      end
+    end
+    add_w_square?(piece[1])
+    def add_e_square?(square)
+      if !in_column?(8, square) &&
+         !@black_squares.include?(square + 1)
+        @moveable_squares << (square + 1)
+        add_e_square?(square + 1) unless @white_squares.include?(square + 1)
+      end
+    end
+    add_e_square?(piece[1])
+    def add_n_square?(square)
+      if !in_row?(8, square) &&
+         !@black_squares.include?(square + 8)
+        @moveable_squares << (square + 8)
+        add_n_square?(square + 8) unless @white_squares.include?(square + 8)
+      end
+    end
+    add_n_square?(piece[1])
+    @moveable_squares
   end
 
   def calculate_wQ_moves(piece, pieces)
