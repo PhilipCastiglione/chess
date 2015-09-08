@@ -17,6 +17,9 @@ class Board
 
   private
 
+    #white_squares = pieces[:white].map {|p| p[1]}
+    #black_squares = pieces[:black].map {|p| p[1]}
+
   def starting_pieces
     {white: [['wR', 0], ['wN', 1], ['wB', 2], ['wQ', 3], ['wK', 4], ['wB', 5], ['wN', 6], ['wR', 7], ['wP', 8], ['wP', 9], ['wP', 10], ['wP', 11], ['wP', 12], ['wP', 13], ['wP', 14], ['wP', 15]], black: [['bP', 48], ['bP', 49], ['bP', 50], ['bP', 51], ['bP', 52], ['bP', 53], ['bP', 54], ['bP', 55], ['bR', 56], ['bN', 57], ['bB', 58], ['bQ', 59], ['bK', 60], ['bB', 61], ['bN', 62], ['bR', 63]]}
   end
@@ -67,136 +70,37 @@ class Board
     end
   end
 
+  def add_knight_square?(square, row1, row2, col1, col2, offset, color)
+    target_square = square + offset
+    if !in_row?(row1, square) &&
+       !in_row?(row2, square) &&
+       !in_column?(col1, square) &&
+       !in_column?(col2, square) &&
+       (!@black_squares.include?(target_square) &&
+        color == "b" ||
+        !@white_squares.include?(target_square) &&
+        color == "w")
+      @moveable_squares << target_square
+    end
+  end
+
   def get_pawn_moves(piece, color)
     @moveable_squares = []
     add_single_square?(piece[1], 0, 0, (color == 'w')? 8 : -8, color)
     @moveable_squares 
   end
 
-  def calculate_wN_moves(piece, pieces)
-    moveable_squares = []
-    white_squares = pieces[:white].map {|p| p[1]}
-    black_squares = pieces[:black].map {|p| p[1]}
-    square = piece[1] - 17
-    if !in_row?(1, piece[1]) &&
-       !in_row?(2, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] - 15
-    if !in_row?(1, piece[1]) &&
-       !in_row?(2, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] - 10
-    if !in_row?(1, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !in_column?(2, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] - 6
-    if !in_row?(1, piece[1]) &&
-       !in_column?(7, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 6
-    if !in_row?(8, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !in_column?(2, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 10
-    if !in_row?(8, piece[1]) &&
-       !in_column?(7, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 15
-    if !in_row?(7, piece[1]) &&
-       !in_row?(8, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 17
-    if !in_row?(7, piece[1]) &&
-       !in_row?(8, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !white_squares.include?(square)
-      moveable_squares << square
-    end
-    moveable_squares
-  end
-
-  def calculate_bN_moves(piece, pieces)
-    moveable_squares = []
-    white_squares = pieces[:white].map {|p| p[1]}
-    black_squares = pieces[:black].map {|p| p[1]}
-    square = piece[1] - 17
-    if !in_row?(1, piece[1]) &&
-       !in_row?(2, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] - 15
-    if !in_row?(1, piece[1]) &&
-       !in_row?(2, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] - 10
-    if !in_row?(1, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !in_column?(2, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] - 6
-    if !in_row?(1, piece[1]) &&
-       !in_column?(7, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 6
-    if !in_row?(8, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !in_column?(2, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 10
-    if !in_row?(8, piece[1]) &&
-       !in_column?(7, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 15
-    if !in_row?(7, piece[1]) &&
-       !in_row?(8, piece[1]) &&
-       !in_column?(1, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    square = piece[1] + 17
-    if !in_row?(7, piece[1]) &&
-       !in_row?(8, piece[1]) &&
-       !in_column?(8, piece[1]) &&
-       !black_squares.include?(square)
-      moveable_squares << square
-    end
-    moveable_squares
+  def get_knight_moves(piece, color)
+    @moveable_squares = []
+    add_knight_squares(piece[1], 1, 2, 1, 0, -17 , color)
+    add_knight_squares(piece[1], 1, 2, 8, 0, -15 , color)
+    add_knight_squares(piece[1], 1, 0, 1, 2, -10 , color)
+    add_knight_squares(piece[1], 1, 0, 7, 8, -6 , color)
+    add_knight_squares(piece[1], 8, 0, 1, 2, 6 , color)
+    add_knight_squares(piece[1], 8, 0, 7, 8, 10 , color)
+    add_knight_squares(piece[1], 7, 8, 1, 0, 15 , color)
+    add_knight_squares(piece[1], 7, 8, 8, 0, 17 , color)
+    @moveable_squares
   end
 
   def get_bishop_moves(piece, color)
