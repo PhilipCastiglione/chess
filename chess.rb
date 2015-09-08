@@ -1,4 +1,4 @@
-class Board
+class Chess
   def initialize
     @board = []
     @pieces = starting_pieces
