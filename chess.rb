@@ -1,7 +1,10 @@
 class Chess
+  attr_reader :pieces
+
   def initialize
     @board = []
     @pieces = starting_pieces
+    store_pieces
     update_board
   end
 
@@ -17,9 +20,6 @@ class Chess
 
   private
 
-    #white_squares = pieces[:white].map {|p| p[1]}
-    #black_squares = pieces[:black].map {|p| p[1]}
-
   def starting_pieces
     {white: [['wR', 0], ['wN', 1], ['wB', 2], ['wQ', 3], ['wK', 4], ['wB', 5], ['wN', 6], ['wR', 7], ['wP', 8], ['wP', 9], ['wP', 10], ['wP', 11], ['wP', 12], ['wP', 13], ['wP', 14], ['wP', 15]], black: [['bP', 48], ['bP', 49], ['bP', 50], ['bP', 51], ['bP', 52], ['bP', 53], ['bP', 54], ['bP', 55], ['bR', 56], ['bN', 57], ['bB', 58], ['bQ', 59], ['bK', 60], ['bB', 61], ['bN', 62], ['bR', 63]]}
   end
@@ -32,6 +32,11 @@ class Chess
     @pieces[:black].each do |p|
       @board[p[1]] = p[0]
     end
+  end
+
+  def store_pieces
+    @white_squares = @pieces[:white].map {|p| p[1]}
+    @black_squares = @pieces[:black].map {|p| p[1]}
   end
 
   def in_column?(col, square)
@@ -92,14 +97,14 @@ class Chess
 
   def get_knight_moves(piece, color)
     @moveable_squares = []
-    add_knight_squares(piece[1], 1, 2, 1, 0, -17 , color)
-    add_knight_squares(piece[1], 1, 2, 8, 0, -15 , color)
-    add_knight_squares(piece[1], 1, 0, 1, 2, -10 , color)
-    add_knight_squares(piece[1], 1, 0, 7, 8, -6 , color)
-    add_knight_squares(piece[1], 8, 0, 1, 2, 6 , color)
-    add_knight_squares(piece[1], 8, 0, 7, 8, 10 , color)
-    add_knight_squares(piece[1], 7, 8, 1, 0, 15 , color)
-    add_knight_squares(piece[1], 7, 8, 8, 0, 17 , color)
+    add_knight_square?(piece[1], 1, 2, 1, 0, -17 , color)
+    add_knight_square?(piece[1], 1, 2, 8, 0, -15 , color)
+    add_knight_square?(piece[1], 1, 0, 1, 2, -10 , color)
+    add_knight_square?(piece[1], 1, 0, 7, 8, -6 , color)
+    add_knight_square?(piece[1], 8, 0, 1, 2, 6 , color)
+    add_knight_square?(piece[1], 8, 0, 7, 8, 10 , color)
+    add_knight_square?(piece[1], 7, 8, 1, 0, 15 , color)
+    add_knight_square?(piece[1], 7, 8, 8, 0, 17 , color)
     @moveable_squares
   end
 
