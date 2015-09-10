@@ -6,6 +6,7 @@ class Chess
     @pieces = starting_pieces
     store_pieces
     update_board
+    start_game
   end
 
   def to_s
@@ -17,8 +18,6 @@ class Chess
     p " | a| b| c| d| e| f| g| h|"
     return nil
   end
-
-  private
 
   def starting_pieces
     {white: [['wR', 0], ['wN', 1], ['wB', 2], ['wQ', 3], ['wK', 4], ['wB', 5], ['wN', 6], ['wR', 7], ['wP', 8], ['wP', 9], ['wP', 10], ['wP', 11], ['wP', 12], ['wP', 13], ['wP', 14], ['wP', 15]], black: [['bP', 48], ['bP', 49], ['bP', 50], ['bP', 51], ['bP', 52], ['bP', 53], ['bP', 54], ['bP', 55], ['bR', 56], ['bN', 57], ['bB', 58], ['bQ', 59], ['bK', 60], ['bB', 61], ['bN', 62], ['bR', 63]]}
@@ -150,5 +149,9 @@ class Chess
     add_single_square?(piece[1], 8, 0, 8, color)
     add_single_square?(piece[1], 8, 8, 9, color)
     @moveable_squares
+  end
+
+  def start_game
+
   end
 end
