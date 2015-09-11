@@ -4,6 +4,7 @@ class Chess
   def initialize
     @board = []
     @pieces = starting_pieces
+    @active_player = nil
     store_pieces
     update_board
     start_game
@@ -12,10 +13,9 @@ class Chess
   def to_s
     start = 64
     8.times do
-      p "#{start / 8}|#{@board.slice(start - 8, 8).map { |s| (s)? s : '  ' }.join("|")}|"
+      p "|#{@board.slice(start - 8, 8).map { |s| (s)? s : '__' }.join("|")}|"
       start -= 8
     end
-    p " | a| b| c| d| e| f| g| h|"
     return nil
   end
 
@@ -152,6 +152,57 @@ class Chess
   end
 
   def start_game
+    puts "WELCOME TO CHESS AND SHIT"
+    puts self
+    wait_for_move
+  end
+
+  def wait_for_move
+    unless win
+      if !@active_player || @active_player == 'black'
+        @active_player = 'white'
+      else
+        @active_player = 'black'
+      end
+      
+      puts "Player #{@active_player}: your turn"
+
+      begin
+        move = get_player_move
+        square = get_player_square
+        confirm = get_player_confirmation
+        move_valid? = check_valid_move(move, square, @active_player)
+      end while !confirm && !move_valid?
+
+    else
+      #do win stuff
+    end
+  end
+
+  def get_player_move
+    print "What piece would you like to move? "
+    gets.chomp
+  end
+
+  def get_player_square
+    print "Where should it go? "
+    gets.chomp
+  end
+
+  def get_player_confirmation
+    print "Confirm #{piece} to #{square} y/n: "
+    gets.chomp
+  end
+
+  def check_valid_move(move, square, color)
+    piece = @pieces[color.to_sym]
+    .values.include?(move)
+  end
+
+  def win
 
   end
 end
+
+chess = Chess.new
+
