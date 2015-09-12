@@ -6,7 +6,7 @@ class Chess
     @pieces_by_piece = starting_pieces
     @pieces_by_square = pieces_to_squares
     @active_player = nil
-    start_game
+    reset_en_passant_squares
   end
 
   def to_s
@@ -21,7 +21,7 @@ class Chess
   end
 
   def starting_pieces
-    {white: {'wR1': 0, 'wN1': 1, 'wB1': 2, 'wQ1': 3, 'wK1': 4, 'wB2': 5, 'wN2': 6, 'wR2': 7, 'wP1': 8, 'wP2': 9, 'wP3': 10, 'wP4': 11, 'wP5': 12, 'wP6': 13, 'wP7': 14, 'wP8': 15}, black: {'bP1': 48, 'bP2': 49, 'bP3': 50, 'bP4': 51, 'bP5': 52, 'bP6': 53, 'bP7': 54, 'bP8': 55, 'bR1': 56, 'bN1': 57, 'bB1': 58, 'bQ1': 59, 'bK1': 60, 'bB2': 61, 'bN2': 62, 'bR2': 63}}
+    {white: {wR1: 0, wN1: 1, wB1: 2, wQ1: 3, wK1: 4, wB2: 5, wN2: 6, wR2: 7, wP1: 8, wP2: 9, wP3: 10, wP4: 11, wP5: 12, wP6: 13, wP7: 14, wP8: 15}, black: {bP1: 48, bP2: 49, bP3: 50, bP4: 51, bP5: 52, bP6: 53, bP7: 54, bP8: 55, bR1: 56, bN1: 57, bB1: 58, bQ1: 59, bK1: 60, bB2: 61, bN2: 62, bR2: 63}}
   end
 
   def pieces_to_squares
@@ -53,7 +53,7 @@ class Chess
     square >= (row - 1) * 8 && square < row * 8
   end
 
-  def add_single_square?(square, row, col, offset, color)
+  def add_king_square?(square, row, col, offset, color)
     target_square = square + offset
     if !in_row?(row, square) &&
        !in_column?(col, square) &&
@@ -62,9 +62,37 @@ class Chess
     end
   end
 
-  def add_square?(square, row, col, offset, color)
+  def add_pawn_move_square?(square, offset, color)
     target_square = square + offset
     other_color = (color == :white)? :black : :white
+    if !@pieces_by_square[:white].include?(target_square) &&
+       !@pieces_by_square[:black].include?(target_square)
+      @moveable_squares << target_square
+    end
+    target_square = square + offset * 2
+    if (in_row?(2, square) &&
+       color == :white) ||
+       (in_row?(7, square) &&
+       color == :black) &&
+       !@pieces_by_square[:white].include?(target_square) &&
+       !@pieces_by_square[:black].include?(target_square)
+      @moveable_squares << target_square
+    end
+  end
+
+  def add_pawn_attack_square?(square, col, offset, color)
+    other_color = (color == :white)? :black : :white
+    target_square = square + offset
+    if !in_column?(col, square) &&
+       (@pieces_by_square[other_color].include?(target_square) ||
+        @en_passant_squares[other_color].include?(target_square))
+      @moveable_squares << target_square
+    end
+  end
+
+  def add_square?(square, row, col, offset, color)
+    other_color = (color == :white)? :black : :white
+    target_square = square + offset
     if !in_row?(row, square) &&
        !in_column?(col, square) &&
        !@pieces_by_square[color].include?(target_square)
@@ -86,7 +114,9 @@ class Chess
 
   def get_pawn_moves(square, color)
     @moveable_squares = []
-    add_single_square?(square, 0, 0, (color == :white)? 8 : -8, color)
+    add_pawn_move_square?(square, (color == :white)? 8 : -8, color)
+    add_pawn_attack_square?(square, 1, (color == :white)? 7 : -9, color)
+    add_pawn_attack_square?(square, 8, (color == :white)? 9 : -7, color)
     @moveable_squares 
   end
 
@@ -136,19 +166,21 @@ class Chess
 
   def get_king_moves(square, color)
     @moveable_squares = []
-    add_single_square?(square, 1, 1, -9, color)
-    add_single_square?(square, 1, 0, -8, color)
-    add_single_square?(square, 1, 8, -7, color)
-    add_single_square?(square, 0, 1, -1, color)
-    add_single_square?(square, 0, 8, 1, color)
-    add_single_square?(square, 8, 1, 7, color)
-    add_single_square?(square, 8, 0, 8, color)
-    add_single_square?(square, 8, 8, 9, color)
+    add_king_square?(square, 1, 1, -9, color)
+    add_king_square?(square, 1, 0, -8, color)
+    add_king_square?(square, 1, 8, -7, color)
+    add_king_square?(square, 0, 1, -1, color)
+    add_king_square?(square, 0, 8, 1, color)
+    add_king_square?(square, 8, 1, 7, color)
+    add_king_square?(square, 8, 0, 8, color)
+    add_king_square?(square, 8, 8, 9, color)
     @moveable_squares
   end
 
   def start_game
-    puts "WELCOME TO CHESS AND SHIT"
+    puts "***********************************"
+    puts "*****WELCOME TO CHESS AND SHIT*****"
+    puts "***********************************"
     puts self
     wait_for_move
   end
@@ -161,20 +193,26 @@ class Chess
         @active_player = :black
       end
       
-      puts "Player #{@active_player.to_s}: your turn"
+      color = @active_player
+      puts "Player #{color.to_s}: your turn"
 
       confirm = false
-      move_valid = false
-      while !confirm || !move_valid
-        piece = get_player_piece
-        user_square = get_player_square
-        square = convert_user_square(user_square)
+      while !confirm
+        move_valid = false
+        while !move_valid
+          piece = get_player_piece
+          user_square = get_player_square
+          square = convert_user_square(user_square)
+          move_valid = check_valid_move(piece, square, color)
+          puts "Move invalid!" unless move_valid
+        end
         confirm = get_player_confirmation(piece, user_square)
-        move_valid = check_valid_move(piece, square, @active_player)
-        puts "Move invalid!" unless move_valid
       end
 
-      @pieces_by_piece[@active_player][piece] = square
+      remove_taken_piece(square, color)
+      reset_en_passant_squares
+      add_en_passant_squares(piece, square, color) if piece[1] == 'P'
+      @pieces_by_piece[color][piece] = square
       @pieces_by_square = pieces_to_squares
 
       puts self
@@ -239,10 +277,29 @@ class Chess
     end
   end
 
+  def remove_taken_piece(square, color)
+    other_color = (color == :white)? :black : :white
+    if @en_passant_squares[other_color].include?(square)
+      ep_offset = (color == :white)? -8 : 8
+      @pieces_by_piece[other_color].delete(@pieces_by_square[other_color][square + ep_offset])
+    elsif @pieces_by_square[other_color].include?(square)
+      @pieces_by_piece[other_color].delete(@pieces_by_square[other_color][square])
+    end
+  end
+
+  def reset_en_passant_squares
+    @en_passant_squares = {white: [], black: []}
+  end
+
+  def add_en_passant_squares(piece, square, color)
+    ep_offset = (color == :white)? 16 : -16
+    if @pieces_by_piece[color][piece] + ep_offset == square
+      @en_passant_squares[color] << square - ep_offset / 2
+    end
+  end
+
   def win
 
   end
 end
-
-chess = Chess.new
 
