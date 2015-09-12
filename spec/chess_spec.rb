@@ -7,37 +7,37 @@ describe Chess do
 
   describe "#get_pawn_moves" do
     it "returns the correct moves" do
-      expect(@chess.send(:get_pawn_moves, @chess.pieces[:white][:wP1], 'w')).to eq([16])
+      expect(@chess.send(:get_pawn_moves, @chess.pieces_by_piece[:white][:wP1], :white)).to eq([16])
     end
   end
 
   describe "#get_knight_moves" do
     it "returns the correct moves" do
-      expect(@chess.send(:get_knight_moves, @chess.pieces[:white][:wN1], 'w')).to eq([16, 18])
+      expect(@chess.send(:get_knight_moves, @chess.pieces_by_piece[:white][:wN1], :white)).to eq([16, 18])
     end
   end
 
   describe "#get_bishop_moves" do
     it "returns the correct moves" do
-      expect(@chess.send(:get_bishop_moves, @chess.pieces[:white][:wB1], 'w')).to eq([])
+      expect(@chess.send(:get_bishop_moves, @chess.pieces_by_piece[:white][:wB1], :white)).to eq([])
     end
   end
 
   describe "#get_rook_moves" do
     it "returns the correct moves" do
-      expect(@chess.send(:get_rook_moves, @chess.pieces[:white][:wR1], 'w')).to eq([])
+      expect(@chess.send(:get_rook_moves, @chess.pieces_by_piece[:white][:wR1], :white)).to eq([])
     end
   end
 
   describe "#get_queen_moves" do
     it "returns the correct moves" do
-      expect(@chess.send(:get_queen_moves, @chess.pieces[:white][:wQ1], 'w')).to eq([])
+      expect(@chess.send(:get_queen_moves, @chess.pieces_by_piece[:white][:wQ1], :white)).to eq([])
     end
   end
 
   describe "#get_king_moves" do
     it "returns the correct moves" do
-      expect(@chess.send(:get_king_moves, @chess.pieces[:white][:wK1], 'w')).to eq([])
+      expect(@chess.send(:get_king_moves, @chess.pieces_by_piece[:white][:wK1], :white)).to eq([])
     end
   end
 end
