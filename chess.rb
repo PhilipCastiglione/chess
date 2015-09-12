@@ -217,7 +217,7 @@ class Chess
       remove_taken_piece(square, color)
       reset_en_passant
       reset_check
-      add_en_passant_squares(piece, square, color) if piece[1] == 'P'
+      set_en_passant(piece, square, color) if piece[1] == 'P'
       @pieces_by_piece[color][piece] = square
       queen_any_pawns(piece, square, color)
       @pieces_by_square = pieces_to_squares
@@ -303,7 +303,7 @@ class Chess
     @en_passant_squares = {white: [], black: []}
   end
 
-  def add_en_passant_squares(piece, square, color)
+  def set_en_passant(piece, square, color)
     ep_offset = (color == :white)? 16 : -16
     if @pieces_by_piece[color][piece] + ep_offset == square
       @en_passant_squares[color] << square - ep_offset / 2
