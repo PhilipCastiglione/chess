@@ -7,7 +7,7 @@ describe Chess do
 
   describe "#get_pawn_moves" do
     it "returns the correct moves" do
-      expect(@chess.send(:get_pawn_moves, @chess.pieces_by_piece[:white][:wP1], :white)).to eq([16])
+      expect(@chess.send(:get_pawn_moves, @chess.pieces_by_piece[:white][:wP1], :white)).to eq([16, 24])
     end
   end
 
