@@ -6,6 +6,7 @@ class Chess
     @pieces_by_piece = starting_pieces
     @pieces_by_square = pieces_to_squares
     @active_player = nil
+    @next_queen = {white: 2, black: 2}
     reset_en_passant_squares
   end
 
@@ -114,9 +115,12 @@ class Chess
 
   def get_pawn_moves(square, color)
     @moveable_squares = []
-    add_pawn_move_square?(square, (color == :white)? 8 : -8, color)
-    add_pawn_attack_square?(square, 1, (color == :white)? 7 : -9, color)
-    add_pawn_attack_square?(square, 8, (color == :white)? 9 : -7, color)
+    p_offset = (color == :white)? 8 : -8
+    add_pawn_move_square?(square, p_offset, color)
+    p_offset = (color == :white)? 7 : -9
+    add_pawn_attack_square?(square, 1, p_offset, color)
+    p_offset = (color == :white)? 9 : -7
+    add_pawn_attack_square?(square, 8, p_offset, color)
     @moveable_squares 
   end
 
@@ -213,6 +217,7 @@ class Chess
       reset_en_passant_squares
       add_en_passant_squares(piece, square, color) if piece[1] == 'P'
       @pieces_by_piece[color][piece] = square
+      queen_any_pawns(piece, square, color)
       @pieces_by_square = pieces_to_squares
 
       puts self
@@ -260,7 +265,7 @@ class Chess
   end
 
   def check_valid_move(piece, square, color)
-    return false if @pieces_by_piece[color].values.include?(piece)
+    return false unless @pieces_by_piece[color].keys.include?(piece)
     case piece[1]
     when 'P'
       get_pawn_moves(@pieces_by_piece[color][piece], color).include?(square)
@@ -296,6 +301,15 @@ class Chess
     if @pieces_by_piece[color][piece] + ep_offset == square
       @en_passant_squares[color] << square - ep_offset / 2
     end
+  end
+
+  def queen_any_pawns(piece, square, color)
+   if (in_row?(8, square) && color == :white) ||
+      (in_row?(1, square) && color == :black)
+     @pieces_by_piece[color].delete(piece)
+     @pieces_by_piece[color]["#{color[0]}Q#{@next_queen[color]}"] = square
+     @next_queen[color] += 1
+   end 
   end
 
   def win
