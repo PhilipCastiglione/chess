@@ -6,20 +6,20 @@ class Chess
     @pieces_by_piece = starting_pieces
     @pieces_by_square = pieces_to_squares
     @active_player = nil
-    update_board
-    #start_game
+    start_game
   end
 
   def to_s
+    update_board
     start = 64
     8.times do
-      p "|#{@board.slice(start - 8, 8).map { |s| (s)? s : '___' }.join("|")}|"
+      p "#{start/8}|#{@board.slice(start - 8, 8).map { |s| (s)? s : '___' }.join("|")}|"
       start -= 8
     end
+    p " | a | b | c | d | e | f | g | h |"
     return nil
   end
 
-  # just refactor this to be easy... {color: white, piece: pawn, location, 8} maybe piece as id
   def starting_pieces
     {white: {'wR1': 0, 'wN1': 1, 'wB1': 2, 'wQ1': 3, 'wK1': 4, 'wB2': 5, 'wN2': 6, 'wR2': 7, 'wP1': 8, 'wP2': 9, 'wP3': 10, 'wP4': 11, 'wP5': 12, 'wP6': 13, 'wP7': 14, 'wP8': 15}, black: {'bP1': 48, 'bP2': 49, 'bP3': 50, 'bP4': 51, 'bP5': 52, 'bP6': 53, 'bP7': 54, 'bP8': 55, 'bR1': 56, 'bN1': 57, 'bB1': 58, 'bQ1': 59, 'bK1': 60, 'bB2': 61, 'bN2': 62, 'bR2': 63}}
   end
@@ -155,42 +155,88 @@ class Chess
 
   def wait_for_move
     unless win
-      if !@active_player || @active_player == 'black'
-        @active_player = 'white'
+      if !@active_player || @active_player == :black
+        @active_player = :white
       else
-        @active_player = 'black'
+        @active_player = :black
       end
       
-      puts "Player #{@active_player}: your turn"
+      puts "Player #{@active_player.to_s}: your turn"
 
-      begin
-        move = get_player_move
-        square = get_player_square
-        confirm = get_player_confirmation
-        move_valid = check_valid_move(move, square, @active_player)
-      end while !confirm && !move_valid
+      confirm = false
+      move_valid = false
+      while !confirm || !move_valid
+        piece = get_player_piece
+        user_square = get_player_square
+        square = convert_user_square(user_square)
+        confirm = get_player_confirmation(piece, user_square)
+        move_valid = check_valid_move(piece, square, @active_player)
+        puts "Move invalid!" unless move_valid
+      end
 
+      @pieces_by_piece[@active_player][piece] = square
+      @pieces_by_square = pieces_to_squares
+
+      puts self
+      wait_for_move
     else
       #do win stuff
     end
   end
 
-  def get_player_move
-    print "What piece would you like to move? "
-    gets.chomp
+  def get_player_piece
+    print "What piece would you like to move? (eg. wP1) "
+    gets.chomp.to_sym
   end
 
   def get_player_square
-    print "Where should it go? "
+    print "Where should it go? (eg. a3) "
     gets.chomp
   end
 
-  def get_player_confirmation
+  def convert_user_square(user_square)
+    ary_square = (user_square[1].to_i - 1) * 8
+    case user_square[0].downcase
+    when 'a'
+      ary_square += 0
+    when 'b'
+      ary_square += 1
+    when 'c'
+      ary_square += 2
+    when 'd'
+      ary_square += 3
+    when 'e'
+      ary_square += 4
+    when 'f'
+      ary_square += 5
+    when 'g'
+      ary_square += 6
+    when 'h'
+      ary_square += 7
+    end
+  end
+
+  def get_player_confirmation(piece, square)
     print "Confirm #{piece} to #{square} y/n: "
-    gets.chomp
+    gets.chomp == 'y'
   end
 
-  def check_valid_move(move, square, color)
+  def check_valid_move(piece, square, color)
+    return false if @pieces_by_piece[color].values.include?(piece)
+    case piece[1]
+    when 'P'
+      get_pawn_moves(@pieces_by_piece[color][piece], color).include?(square)
+    when 'N'
+      get_knight_moves(@pieces_by_piece[color][piece], color).include?(square)
+    when 'B'
+      get_bishop_moves(@pieces_by_piece[color][piece], color).include?(square)
+    when 'R'
+      get_rook_moves(@pieces_by_piece[color][piece], color).include?(square)
+    when 'Q'
+      get_queen_moves(@pieces_by_piece[color][piece], color).include?(square)
+    when 'K'
+      get_king_moves(@pieces_by_piece[color][piece], color).include?(square)
+    end
   end
 
   def win
