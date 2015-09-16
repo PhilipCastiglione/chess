@@ -221,12 +221,12 @@ class Chess
 
       remove_taken_piece(square, color)
       reset_en_passant
-      reset_check
+      reset_check(@checked)
       set_en_passant(piece, square, color) if piece[1] == 'P'
       @pieces_by_piece[color][piece] = square
       queen_any_pawns(piece, square, color)
       @pieces_by_square = pieces_to_squares
-      set_check(color)
+      set_check(color, @pieces_by_piece, @checked)
 
       puts self
       wait_for_move
@@ -271,15 +271,6 @@ class Chess
     print "Confirm #{piece} to #{square} y/n: "
     gets.chomp == 'y'
   end
-
-#  def check_valid_move(piece, square, color)
-#    return false unless @pieces_by_piece[color].keys.include?(piece)
-#    if @checked[color]
-#      get_moves(piece, color).include?(square) && check_defended?(piece, square, color)
-#    else
-#      get_moves(piece, color).include?(square)
-#    end
-#  end
 
   def get_moves(piece, color)
     case piece[1]
@@ -326,23 +317,6 @@ class Chess
      @pieces_by_piece[color]["#{color[0]}Q#{@next_queen[color]}".to_sym] = square
      @next_queen[color] += 1
    end 
-  end
-
-  def reset_check
-    @checked = {white: false, black: false}
-  end
-
-  def set_check(color)
-    other_color = (color == :white)? :black : :white
-    @pieces_by_piece[color].each do |p|
-      if get_moves(piece, color).include?(@pieces_by_piece[other_color]["#{other_color[0]}K1".to_sym])
-        @checked[other_color] = true 
-      end
-    end
-  end
-
-  def check_defended?(piece, square, color)
-
   end
 
   def win
