@@ -1,5 +1,5 @@
 add less basic moves
- - castling
- - check
+- castling
+- check
 refactor
 expand unit tests for basic moves
