@@ -200,6 +200,7 @@ class Chess
       
       color = @active_player
       puts "Player #{color.to_s}: your turn"
+      puts "You are checked" if @checked[color]
 
       confirm = false
       while !confirm
@@ -269,7 +270,11 @@ class Chess
 
   def check_valid_move(piece, square, color)
     return false unless @pieces_by_piece[color].keys.include?(piece)
-    get_moves(piece, color).include?(square)
+    if @checked[color]
+      get_moves(piece, color).include?(square) && check_defended?(piece, square, color)
+    else
+      get_moves(piece, color).include?(square)
+    end
   end
 
   def get_moves(piece, color)
@@ -330,6 +335,10 @@ class Chess
         @checked[other_color] = true 
       end
     end
+  end
+
+  def check_defended?(piece, square, color)
+
   end
 
   def win
