@@ -65,7 +65,6 @@ class Chess
       
       color = @active_player
       puts "Player #{color.to_s}: your turn"
-      puts "You are checked" if @checked[color]
 
       confirm = false
       while !confirm
@@ -74,7 +73,7 @@ class Chess
           piece = get_player_piece
           user_square = get_player_square
           square = convert_user_square(user_square)
-          move_valid = check_valid_move(@pieces_by_piece, piece, square, color, @checked, @en_passant_squares)
+          move_valid = check_valid_move(piece, square, color)
           puts "Move invalid!" unless move_valid
         end
         confirm = get_player_confirmation(piece, user_square)
@@ -87,7 +86,7 @@ class Chess
       @pieces_by_piece[color][piece] = square
       queen_any_pawns(piece, square, color)
       @pieces_by_square = pieces_to_squares
-      set_check(color, @pieces_by_piece, @checked, @en_passant_squares)
+      set_check(color)
 
       puts self
       wait_for_move
@@ -133,6 +132,28 @@ class Chess
     gets.chomp == 'y'
   end
 
+  def check_valid_move(piece, square, color)
+    return false unless @pieces_by_piece[color].keys.include?(piece)
+    get_moves(piece, color).include?(square)
+  end
+
+  def get_moves(piece, color)
+    case piece[1]
+    when 'P'
+      get_pawn_moves(@pieces_by_piece[color][piece], color)
+    when 'N'
+      get_knight_moves(@pieces_by_piece[color][piece], color)
+    when 'B'
+      get_bishop_moves(@pieces_by_piece[color][piece], color)
+    when 'R'
+      get_rook_moves(@pieces_by_piece[color][piece], color)
+    when 'Q'
+      get_queen_moves(@pieces_by_piece[color][piece], color)
+    when 'K'
+      get_king_moves(@pieces_by_piece[color][piece], color)
+    end
+  end
+
   def remove_taken_piece(square, color)
     other_color = (color == :white)? :black : :white
     if @en_passant_squares[other_color].include?(square)
@@ -167,47 +188,46 @@ class Chess
 
   end
 
-  def check_valid_move(pieces_by_piece, piece, square, color, checked, en_passant_squares)
-    return false unless pieces_by_piece[color].keys.include?(piece)
-    if checked[color]
-      get_moves(pieces_by_piece, piece, color, en_passant_squares).include?(square) && check_defended?(pieces_by_piece, piece, square, color)
+  def check_valid_move(piece, square, color)
+    return false unless @pieces_by_piece[color].keys.include?(piece)
+    if @checked[color]
+      get_moves(piece, color).include?(square) && check_defended?(piece, square, color)
     else
-      get_moves(pieces_by_piece, piece, color, en_passant_squares).include?(square)
+      get_moves(piece, color).include?(square)
     end
   end
 
-  def get_moves(pieces_by_piece, piece, color, en_passant_squares)
+  def get_moves(piece, color)
     case piece[1]
     when 'P'
-      get_pawn_moves(pieces_by_piece, pieces_by_piece[color][piece], color, en_passant_squares)
+      get_pawn_moves(@pieces_by_piece[color][piece], color)
     when 'N'
-      get_knight_moves(pieces_by_piece, pieces_by_piece[color][piece], color)
+      get_knight_moves(@pieces_by_piece[color][piece], color)
     when 'B'
-      get_bishop_moves(pieces_by_piece, pieces_by_piece[color][piece], color)
+      get_bishop_moves(@pieces_by_piece[color][piece], color)
     when 'R'
-      get_rook_moves(pieces_by_piece, pieces_by_piece[color][piece], color)
+      get_rook_moves(@pieces_by_piece[color][piece], color)
     when 'Q'
-      get_queen_moves(pieces_by_piece, pieces_by_piece[color][piece], color)
+      get_queen_moves(@pieces_by_piece[color][piece], color)
     when 'K'
-      get_king_moves(pieces_by_piece, pieces_by_piece[color][piece], color)
+      get_king_moves(@pieces_by_piece[color][piece], color)
     end
   end
-
 
   def reset_check(check_state)
     check_state = {white: false, black: false}
   end
 
-  def set_check(color, pieces_by_piece, check_state, en_passant_squares)
+  def set_check(color)
     other_color = (color == :white)? :black : :white
-    pieces_by_piece[color].each do |piece|
-      if get_moves(pieces_by_piece, piece[0], color, en_passant_squares).include?(pieces_by_piece[other_color]["#{other_color[0]}K1".to_sym])
+    @pieces_by_piece[color].each do |piece|
+      if get_moves(piece[0], color).include?(@pieces_by_piece[other_color]["#{other_color[0]}K1".to_sym])
         check_state[other_color] = true 
       end
     end
   end
 
-  def check_defended?(pieces_by_piece, piece, square, color)
+  def check_defended?(piece, square, color)
 
   end
 
@@ -219,131 +239,134 @@ class Chess
     square >= (row - 1) * 8 && square < row * 8
   end
 
-  def add_king_square?(pieces_by_square, square, row, col, offset, color, moveable_squares)
+  def win
+  end
+
+  def add_king_square?(square, row, col, offset, color)
     target_square = square + offset
     if !in_row?(row, square) &&
        !in_column?(col, square) &&
-       !pieces_by_square[color].include?(target_square)
-      moveable_squares << target_square
+       !@pieces_by_square[color].include?(target_square)
+      @moveable_squares << target_square
     end
   end
 
-  def add_pawn_move_square?(pieces_by_square, square, offset, color, moveable_squares)
+  def add_pawn_move_square?(square, offset, color)
     target_square = square + offset
     other_color = (color == :white)? :black : :white
-    if !pieces_by_square[:white].include?(target_square) &&
-       !pieces_by_square[:black].include?(target_square)
-      moveable_squares << target_square
+    if !@pieces_by_square[:white].include?(target_square) &&
+       !@pieces_by_square[:black].include?(target_square)
+      @moveable_squares << target_square
     end
     target_square = square + offset * 2
     if (in_row?(2, square) &&
        color == :white) ||
        (in_row?(7, square) &&
        color == :black) &&
-       !pieces_by_square[:white].include?(target_square) &&
-       !pieces_by_square[:black].include?(target_square)
-      moveable_squares << target_square
+       !@pieces_by_square[:white].include?(target_square) &&
+       !@pieces_by_square[:black].include?(target_square)
+      @moveable_squares << target_square
     end
   end
 
-  def add_pawn_attack_square?(pieces_by_square, square, col, offset, color, en_passant_squares, moveable_squares)
+  def add_pawn_attack_square?(square, col, offset, color)
     other_color = (color == :white)? :black : :white
     target_square = square + offset
     if !in_column?(col, square) &&
-       (pieces_by_square[other_color].include?(target_square) ||
-        en_passant_squares[other_color].include?(target_square))
-      moveable_squares << target_square
+       (@pieces_by_square[other_color].include?(target_square) ||
+        @en_passant_squares[other_color].include?(target_square))
+      @moveable_squares << target_square
     end
   end
 
-  def add_square?(pieces_by_square, square, row, col, offset, color, moveable_squares)
+  def add_square?(square, row, col, offset, color)
     other_color = (color == :white)? :black : :white
     target_square = square + offset
     if !in_row?(row, square) &&
        !in_column?(col, square) &&
-       !pieces_by_square[color].include?(target_square)
-      moveable_squares << target_square
-      add_square?(pieces_by_square, target_square, row, col, offset, color, moveable_squares) unless pieces_by_square[other_color].include?(target_square)
+       !@pieces_by_square[color].include?(target_square)
+      @moveable_squares << target_square
+      add_square?(target_square, row, col, offset, color) unless @pieces_by_square[other_color].include?(target_square)
     end
   end
 
-  def add_knight_square?(pieces_by_square, square, row1, row2, col1, col2, offset, color, moveable_squares)
+  def add_knight_square?(square, row1, row2, col1, col2, offset, color)
     target_square = square + offset
     if !in_row?(row1, square) &&
        !in_row?(row2, square) &&
        !in_column?(col1, square) &&
        !in_column?(col2, square) &&
-       !pieces_by_square[color].include?(target_square)
-      moveable_squares << target_square
+       !@pieces_by_square[color].include?(target_square)
+      @moveable_squares << target_square
     end
   end
 
-  def get_pawn_moves(pieces_by_square, square, color, en_passant_squares)
-    moveable_squares = []
+  def get_pawn_moves(square, color)
+    @moveable_squares = []
     p_offset = (color == :white)? 8 : -8
-    add_pawn_move_square?(pieces_by_square, square, p_offset, color, moveable_squares)
+    add_pawn_move_square?(square, p_offset, color)
     p_offset = (color == :white)? 7 : -9
-    add_pawn_attack_square?(pieces_by_square, square, 1, p_offset, color, en_passant_squares, moveable_squares)
+    add_pawn_attack_square?(square, 1, p_offset, color)
     p_offset = (color == :white)? 9 : -7
-    add_pawn_attack_square?(pieces_by_square, square, 8, p_offset, color, en_passant_squares, moveable_squares)
-    moveable_squares 
+    add_pawn_attack_square?(square, 8, p_offset, color)
+    @moveable_squares 
   end
 
-  def get_knight_moves(pieces_by_square, square, color)
-    moveable_squares = []
-    add_knight_square?(pieces_by_square, square, 1, 2, 1, 0, -17 , color, moveable_squares)
-    add_knight_square?(pieces_by_square, square, 1, 2, 8, 0, -15 , color, moveable_squares)
-    add_knight_square?(pieces_by_square, square, 1, 0, 1, 2, -10 , color, moveable_squares)
-    add_knight_square?(pieces_by_square, square, 1, 0, 7, 8, -6 , color, moveable_squares)
-    add_knight_square?(pieces_by_square, square, 8, 0, 1, 2, 6 , color, moveable_squares)
-    add_knight_square?(pieces_by_square, square, 8, 0, 7, 8, 10 , color, moveable_squares)
-    add_knight_square?(pieces_by_square, square, 7, 8, 1, 0, 15 , color, moveable_squares)
-    add_knight_square?(pieces_by_square, square, 7, 8, 8, 0, 17 , color, moveable_squares)
-    moveable_squares
+  def get_knight_moves(square, color)
+    @moveable_squares = []
+    add_knight_square?(square, 1, 2, 1, 0, -17, color)
+    add_knight_square?(square, 1, 2, 8, 0, -15, color)
+    add_knight_square?(square, 1, 0, 1, 2, -10, color)
+    add_knight_square?(square, 1, 0, 7, 8, -6, color)
+    add_knight_square?(square, 8, 0, 1, 2, 6, color)
+    add_knight_square?(square, 8, 0, 7, 8, 10, color)
+    add_knight_square?(square, 7, 8, 1, 0, 15, color)
+    add_knight_square?(square, 7, 8, 8, 0, 17, color)
+    @moveable_squares
   end
 
-  def get_bishop_moves(pieces_by_square, square, color)
-    moveable_squares = []
-    add_square?(pieces_by_square, square, 1, 1, -9, color, moveable_squares)
-    add_square?(pieces_by_square, square, 1, 8, -7, color, moveable_squares)
-    add_square?(pieces_by_square, square, 8, 1, 7, color, moveable_squares)
-    add_square?(pieces_by_square, square, 8, 8, 9, color, moveable_squares)
-    moveable_squares
+  def get_bishop_moves(square, color)
+    @moveable_squares = []
+    add_square?(square, 1, 1, -9, color)
+    add_square?(square, 1, 8, -7, color)
+    add_square?(square, 8, 1, 7, color)
+    add_square?(square, 8, 8, 9, color)
+    @moveable_squares
   end
 
-  def get_rook_moves(pieces_by_square, square, color)
-    moveable_squares = []
-    add_square?(pieces_by_square, square, 1, 0, -8, color, moveable_squares)
-    add_square?(pieces_by_square, square, 0, 1, -1, color, moveable_squares)
-    add_square?(pieces_by_square, square, 0, 8, 1, color, moveable_squares)
-    add_square?(pieces_by_square, square, 8, 0, 8, color, moveable_squares)
-    moveable_squares
+  def get_rook_moves(square, color)
+    @moveable_squares = []
+    add_square?(square, 1, 0, -8, color)
+    add_square?(square, 0, 1, -1, color)
+    add_square?(square, 0, 8, 1, color)
+    add_square?(square, 8, 0, 8, color)
+    @moveable_squares
   end
 
-  def get_queen_moves(pieces_by_square, square, color)
-    moveable_squares = []
-    add_square?(pieces_by_square, square, 1, 1, -9, color, moveable_squares)
-    add_square?(pieces_by_square, square, 1, 0, -8, color, moveable_squares)
-    add_square?(pieces_by_square, square, 1, 8, -7, color, moveable_squares)
-    add_square?(pieces_by_square, square, 0, 1, -1, color, moveable_squares)
-    add_square?(pieces_by_square, square, 0, 8, 1, color, moveable_squares)
-    add_square?(pieces_by_square, square, 8, 1, 7, color, moveable_squares)
-    add_square?(pieces_by_square, square, 8, 0, 8, color, moveable_squares)
-    add_square?(pieces_by_square, square, 8, 8, 9, color, moveable_squares)
-    moveable_squares
+  def get_queen_moves(square, color)
+    @moveable_squares = []
+    add_square?(square, 1, 1, -9, color)
+    add_square?(square, 1, 0, -8, color)
+    add_square?(square, 1, 8, -7, color)
+    add_square?(square, 0, 1, -1, color)
+    add_square?(square, 0, 8, 1, color)
+    add_square?(square, 8, 1, 7, color)
+    add_square?(square, 8, 0, 8, color)
+    add_square?(square, 8, 8, 9, color)
+    @moveable_squares
   end
 
-  def get_king_moves(pieces_by_square, square, color)
-    moveable_squares = []
-    add_king_square?(pieces_by_square, square, 1, 1, -9, color, moveable_squares)
-    add_king_square?(pieces_by_square, square, 1, 0, -8, color, moveable_squares)
-    add_king_square?(pieces_by_square, square, 1, 8, -7, color, moveable_squares)
-    add_king_square?(pieces_by_square, square, 0, 1, -1, color, moveable_squares)
-    add_king_square?(pieces_by_square, square, 0, 8, 1, color, moveable_squares)
-    add_king_square?(pieces_by_square, square, 8, 1, 7, color, moveable_squares)
-    add_king_square?(pieces_by_square, square, 8, 0, 8, color, moveable_squares)
-    add_king_square?(pieces_by_square, square, 8, 8, 9, color, moveable_squares)
-    moveable_squares
+  def get_king_moves(square, color)
+    @moveable_squares = []
+    add_king_square?(square, 1, 1, -9, color)
+    add_king_square?(square, 1, 0, -8, color)
+    add_king_square?(square, 1, 8, -7, color)
+    add_king_square?(square, 0, 1, -1, color)
+    add_king_square?(square, 0, 8, 1, color)
+    add_king_square?(square, 8, 1, 7, color)
+    add_king_square?(square, 8, 0, 8, color)
+    add_king_square?(square, 8, 8, 9, color)
+    @moveable_squares
   end
 end
 
