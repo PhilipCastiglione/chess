@@ -1,4 +1,8 @@
+require_relative 'check.rb'
+
 class Chess
+  extend Check
+
   attr_reader :pieces_by_piece, :pieces_by_square
 
   def initialize
@@ -209,7 +213,7 @@ class Chess
           piece = get_player_piece
           user_square = get_player_square
           square = convert_user_square(user_square)
-          move_valid = check_valid_move(piece, square, color)
+          move_valid = check_valid_move(@pieces_by_piece, piece, square, color, @checked)
           puts "Move invalid!" unless move_valid
         end
         confirm = get_player_confirmation(piece, user_square)
@@ -268,14 +272,14 @@ class Chess
     gets.chomp == 'y'
   end
 
-  def check_valid_move(piece, square, color)
-    return false unless @pieces_by_piece[color].keys.include?(piece)
-    if @checked[color]
-      get_moves(piece, color).include?(square) && check_defended?(piece, square, color)
-    else
-      get_moves(piece, color).include?(square)
-    end
-  end
+#  def check_valid_move(piece, square, color)
+#    return false unless @pieces_by_piece[color].keys.include?(piece)
+#    if @checked[color]
+#      get_moves(piece, color).include?(square) && check_defended?(piece, square, color)
+#    else
+#      get_moves(piece, color).include?(square)
+#    end
+#  end
 
   def get_moves(piece, color)
     case piece[1]
