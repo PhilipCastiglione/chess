@@ -81,7 +81,7 @@ class Chess
 
       remove_taken_piece(square, color)
       reset_en_passant
-      reset_check(@checked)
+      reset_check
       set_en_passant(piece, square, color) if piece[1] == 'P'
       @pieces_by_piece[color][piece] = square
       queen_any_pawns(piece, square, color)
@@ -130,11 +130,6 @@ class Chess
   def get_player_confirmation(piece, square)
     print "Confirm #{piece} to #{square} y/n: "
     gets.chomp == 'y'
-  end
-
-  def check_valid_move(piece, square, color)
-    return false unless @pieces_by_piece[color].keys.include?(piece)
-    get_moves(piece, color).include?(square)
   end
 
   def get_moves(piece, color)
@@ -214,21 +209,43 @@ class Chess
     end
   end
 
-  def reset_check(check_state)
-    check_state = {white: false, black: false}
+  def reset_check
+    @checked = {white: false, black: false}
   end
 
   def set_check(color)
     other_color = (color == :white)? :black : :white
     @pieces_by_piece[color].each do |piece|
       if get_moves(piece[0], color).include?(@pieces_by_piece[other_color]["#{other_color[0]}K1".to_sym])
-        check_state[other_color] = true 
+        @checked[other_color] = true 
       end
     end
   end
 
   def check_defended?(piece, square, color)
-
+    other_color = (color == :white)? :black : :white
+    real_pieces = Marshal.load(Marshal.dump(@pieces_by_piece))
+    real_squares  = Marshal.load(Marshal.dump(@pieces_by_square))
+    real_check = Marshal.load(Marshal.dump(@checked))
+    piece_to_remove = @pieces_by_square[color][square]
+    @pieces_by_piece[color].delete(piece_to_remove) if piece_to_remove
+    piece_to_remove = @pieces_by_square[other_color][square]
+    @pieces_by_piece[other_color].delete(piece_to_remove) if piece_to_remove
+    @pieces_by_piece[color][piece] = square
+    @pieces_by_square = pieces_to_squares
+    reset_check
+    set_check(other_color)
+    if @checked[color]
+      @pieces_by_piece = real_pieces
+      @pieces_by_square = real_squares
+      @checked = real_check
+      return false
+    else
+      @pieces_by_piece = real_pieces
+      @pieces_by_square = real_squares
+      @checked = real_check
+      return true
+    end
   end
 
   def in_column?(col, square)
