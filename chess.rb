@@ -172,16 +172,16 @@ class Chess
     elsif piece[1] == 'R'
       @castle[color] -= [piece]
     end
-    @castle[color].each {|r| @castle[color].delete(r) unless @pieces_by_piece[color].values.include?(r) }
-    @castle[other_color].each {|r| @castle[other_color].delete(r) unless @pieces_by_piece[other_color].values.include?(r) }
+    @castle[color].each {|r| @castle[color].delete(r) unless @pieces_by_piece[color].include?(r) }
+    @castle[other_color].each {|r| @castle[other_color].delete(r) unless @pieces_by_piece[other_color].include?(r) }
   end
 
   def move_castled_rook(piece, square)
     if piece == :wK1
       if square == 2
         @pieces_by_piece[:white][:wR1] = 3
-      elsif square == 7
-        @pieces_by_piece[:white][:wR2] = 6
+      elsif square == 6
+        @pieces_by_piece[:white][:wR2] = 5
       end
     elsif piece == :bK1
       if square == 58
@@ -197,7 +197,7 @@ class Chess
   end
 
   def check_valid_move(piece, square, color)
-    return false unless @pieces_by_piece[color].keys.include?(piece)
+    return false unless @pieces_by_piece[color].include?(piece)
     if @checked[color]
       get_moves(piece, color).include?(square) && check_defended?(piece, square, color)
     else
@@ -222,6 +222,14 @@ class Chess
     end
   end
 
+  def attacked_squares(color)
+    @attacked_squares = []
+    @pieces_by_piece[color].each do |piece|
+      @attacked_squares << get_moves(piece, color)
+    end
+    @attacked_squares
+  end
+    
   def reset_check
     @checked = {white: false, black: false}
   end
@@ -282,27 +290,36 @@ class Chess
   end
 
   def add_castle_squares?(color)
-    # can't castle out of, or through check
-    if color == :white
+    if color == :white &&
+       !@checked[:white]
       if @castle[color].include?(:wR1) &&
-         @pieces_by_square[:white].values - [1, 2, 3] == @pieces_by_square[:white].values && 
-         @pieces_by_square[:black].values - [1, 2, 3] == @pieces_by_square[:black].values
+         @pieces_by_square[:white].keys - [1, 2, 3] == @pieces_by_square[:white].keys && 
+         @pieces_by_square[:black].keys - [1, 2, 3] == @pieces_by_square[:black].keys &&
+         !attacked_squares(:black).include?(2) &&
+         !attacked_squares(:black).include?(3)
         @moveable_squares << 2
       end
       if @castle[color].include?(:wR2) &&
-         @pieces_by_square[:white].values - [5, 6] == @pieces_by_square[:white].values && 
-         @pieces_by_square[:black].values - [5, 6] == @pieces_by_square[:black].values
+         @pieces_by_square[:white].keys - [5, 6] == @pieces_by_square[:white].keys && 
+         @pieces_by_square[:black].keys - [5, 6] == @pieces_by_square[:black].keys &&
+         !attacked_squares(:black).include?(5) &&
+         !attacked_squares(:black).include?(6)
         @moveable_squares << 6
       end
-    else
+    elsif color == :black &&
+          !@checked[:black]
       if @castle[color].include?(:bR1) &&
-         @pieces_by_square[:white].values - [57, 58, 59] == @pieces_by_square[:white].values && 
-         @pieces_by_square[:black].values - [57, 58, 59] == @pieces_by_square[:black].values
+         @pieces_by_square[:white].keys - [57, 58, 59] == @pieces_by_square[:white].keys && 
+         @pieces_by_square[:black].keys - [57, 58, 59] == @pieces_by_square[:black].keys &&
+         !attacked_squares(:white).include?(58) &&
+         !attacked_squares(:white).include?(59)
         @moveable_squares << 58
       end
       if @castle[color].include?(:bR2) &&
-         @pieces_by_square[:white].values - [61, 62] == @pieces_by_square[:white].values && 
-         @pieces_by_square[:black].values - [61, 62] == @pieces_by_square[:black].values
+         @pieces_by_square[:white].keys - [61, 62] == @pieces_by_square[:white].keys && 
+         @pieces_by_square[:black].keys - [61, 62] == @pieces_by_square[:black].keys &&
+         !attacked_squares(:white).include?(61) &&
+         !attacked_squares(:white).include?(62)
         @moveable_squares << 62
       end
     end
