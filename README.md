@@ -1,3 +1,5 @@
-1. add castling
-2. refactor
-3. expand unit tests for basic moves
+add castling
+add win condition
+add weird stuff i've forgotten (draw conditions?)
+refactor
+expand unit tests for basic moves
