@@ -8,6 +8,7 @@ class Chess
     @active_player = nil
     @next_queen = {white: 2, black: 2}
     @checked = {white: false, black: false}
+    @castle = {white: [:wR1, :wR2], black: [:bR1, :bR2]}
     reset_en_passant
   end
 
@@ -80,11 +81,13 @@ class Chess
       end
 
       remove_taken_piece(square, color)
-      reset_en_passant
       reset_check
+      reset_en_passant
       set_en_passant(piece, square, color) if piece[1] == 'P'
       @pieces_by_piece[color][piece] = square
       queen_any_pawns(piece, square, color)
+      update_castleable_rooks(piece, color)
+      move_castled_rook(piece, square)
       @pieces_by_square = pieces_to_squares
       set_check(color)
 
@@ -132,23 +135,6 @@ class Chess
     gets.chomp == 'y'
   end
 
-  def get_moves(piece, color)
-    case piece[1]
-    when 'P'
-      get_pawn_moves(@pieces_by_piece[color][piece], color)
-    when 'N'
-      get_knight_moves(@pieces_by_piece[color][piece], color)
-    when 'B'
-      get_bishop_moves(@pieces_by_piece[color][piece], color)
-    when 'R'
-      get_rook_moves(@pieces_by_piece[color][piece], color)
-    when 'Q'
-      get_queen_moves(@pieces_by_piece[color][piece], color)
-    when 'K'
-      get_king_moves(@pieces_by_piece[color][piece], color)
-    end
-  end
-
   def remove_taken_piece(square, color)
     other_color = (color == :white)? :black : :white
     if @en_passant_squares[other_color].include?(square)
@@ -177,6 +163,33 @@ class Chess
      @pieces_by_piece[color]["#{color[0]}Q#{@next_queen[color]}".to_sym] = square
      @next_queen[color] += 1
    end 
+  end
+
+  def update_castleable_rooks(piece, color)
+    other_color = (color == :white)? :black : :white
+    if piece[1] == 'K'
+      @castle[color] = []
+    elsif piece[1] == 'R'
+      @castle[color] -= [piece]
+    end
+    @castle[color].each {|r| @castle[color].delete(r) unless @pieces_by_piece[color].values.include?(r) }
+    @castle[other_color].each {|r| @castle[other_color].delete(r) unless @pieces_by_piece[other_color].values.include?(r) }
+  end
+
+  def move_castled_rook(piece, square)
+    if piece == :wK1
+      if square == 2
+        @pieces_by_piece[:white][:wR1] = 3
+      elsif square == 7
+        @pieces_by_piece[:white][:wR2] = 6
+      end
+    elsif piece == :bK1
+      if square == 58
+        @pieces_by_piece[:black][:bR1] = 59
+      elsif square == 62
+        @pieces_by_piece[:black][:bR2] = 61
+      end
+    end
   end
 
   def win
@@ -265,6 +278,33 @@ class Chess
        !in_column?(col, square) &&
        !@pieces_by_square[color].include?(target_square)
       @moveable_squares << target_square
+    end
+  end
+
+  def add_castle_squares?(color)
+    # can't castle out of, or through check
+    if color == :white
+      if @castle[color].include?(:wR1) &&
+         @pieces_by_square[:white].values - [1, 2, 3] == @pieces_by_square[:white].values && 
+         @pieces_by_square[:black].values - [1, 2, 3] == @pieces_by_square[:black].values
+        @moveable_squares << 2
+      end
+      if @castle[color].include?(:wR2) &&
+         @pieces_by_square[:white].values - [5, 6] == @pieces_by_square[:white].values && 
+         @pieces_by_square[:black].values - [5, 6] == @pieces_by_square[:black].values
+        @moveable_squares << 6
+      end
+    else
+      if @castle[color].include?(:bR1) &&
+         @pieces_by_square[:white].values - [57, 58, 59] == @pieces_by_square[:white].values && 
+         @pieces_by_square[:black].values - [57, 58, 59] == @pieces_by_square[:black].values
+        @moveable_squares << 58
+      end
+      if @castle[color].include?(:bR2) &&
+         @pieces_by_square[:white].values - [61, 62] == @pieces_by_square[:white].values && 
+         @pieces_by_square[:black].values - [61, 62] == @pieces_by_square[:black].values
+        @moveable_squares << 62
+      end
     end
   end
 
@@ -383,6 +423,7 @@ class Chess
     add_king_square?(square, 8, 1, 7, color)
     add_king_square?(square, 8, 0, 8, color)
     add_king_square?(square, 8, 8, 9, color)
+    add_castle_squares?(color)
     @moveable_squares
   end
 end
