@@ -94,7 +94,7 @@ class Chess
       puts self
       wait_for_move
     else
-      #do win stuff
+      puts "Omg player #{@active_player} totes just won by checkmate!"
     end
   end
 
@@ -193,7 +193,18 @@ class Chess
   end
 
   def win
-
+    color = (@active_player == :white)? :black : :white
+    return false unless @checked[color]
+    winning = true
+    @pieces_by_piece[color].keys.each do |piece|
+      squares = get_moves(piece, color)
+      if squares.size > 0
+        squares.each do |square|
+          winning = false if check_valid_move(piece, square, color)
+        end
+      end
+    end
+    return winning
   end
 
   def check_valid_move(piece, square, color)
@@ -277,9 +288,6 @@ class Chess
     square >= (row - 1) * 8 && square < row * 8
   end
 
-  def win
-  end
-
   def add_king_square?(square, row, col, offset, color)
     target_square = square + offset
     if !in_row?(row, square) &&
@@ -332,10 +340,10 @@ class Chess
        !@pieces_by_square[:black].include?(target_square)
       @moveable_squares << target_square
     end
-    target_square = square + offset * 2
+    target_square += offset
     if (in_row?(2, square) &&
-       color == :white) ||
-       (in_row?(7, square) &&
+       color == :white ||
+       in_row?(7, square) &&
        color == :black) &&
        !@pieces_by_square[:white].include?(target_square) &&
        !@pieces_by_square[:black].include?(target_square)
