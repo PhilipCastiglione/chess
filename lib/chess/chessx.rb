@@ -1,3 +1,5 @@
+require_relative 'gosu.rb'
+
 class Chess
   attr_reader :pieces_by_piece, :pieces_by_square
 
