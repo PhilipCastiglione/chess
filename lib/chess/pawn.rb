@@ -21,7 +21,9 @@ class Pawn < Piece
     m = []
     if unoccupied(move, game.pieces)
       m << move
-      if unoccupied(double_move, game.pieces)
+      if unoccupied(double_move, game.pieces) &&
+        (self.row == 2 && self.color == :white ||
+         self.row == 7 && self.color == :black)
         m << double_move
       end
     end
