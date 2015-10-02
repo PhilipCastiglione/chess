@@ -1,3 +1,3 @@
-require_relative '../chess'
+require_relative '../lib/chess.rb'
 
 require 'yaml'

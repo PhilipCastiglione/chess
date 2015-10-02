@@ -1,44 +1,30 @@
 require 'spec_helper'
 
-describe Chess do
+describe Game do
   before :each do
-    @chess = Chess.new
+    @game = Game.new
+    @pawn = Pawn.new(36, :white)
+    @game.pieces[:white] << @pawn
+    @knight = Knight.new(41, :white)
+    @game.pieces[:white] << @knight
+    @bishop = Bishop.new(13, :black)
+    @game.pieces[:black] << @bishop
   end
 
-  describe "#get_pawn_moves" do
-    it "returns the correct moves" do
-      expect(@chess.send(:get_pawn_moves, @chess.pieces_by_piece[:white][:wP1], :white)).to eq([16, 24])
-    end
-  end
+  describe "Pawn" do
 
-  describe "#get_knight_moves" do
-    it "returns the correct moves" do
-      expect(@chess.send(:get_knight_moves, @chess.pieces_by_piece[:white][:wN1], :white)).to eq([16, 18])
+    describe "#moves" do
+      it "returns the valid moves" do
+        expect(@pawn.moves(@game)).to eq([44])
+      end
     end
-  end
 
-  describe "#get_bishop_moves" do
-    it "returns the correct moves" do
-      expect(@chess.send(:get_bishop_moves, @chess.pieces_by_piece[:white][:wB1], :white)).to eq([])
+    describe "#attack_moves" do
+      it "returns the valid attack moves" do
+        expect(@pawn.attack_moves(@game)).to eq([])
+      end
     end
-  end
-
-  describe "#get_rook_moves" do
-    it "returns the correct moves" do
-      expect(@chess.send(:get_rook_moves, @chess.pieces_by_piece[:white][:wR1], :white)).to eq([])
-    end
-  end
-
-  describe "#get_queen_moves" do
-    it "returns the correct moves" do
-      expect(@chess.send(:get_queen_moves, @chess.pieces_by_piece[:white][:wQ1], :white)).to eq([])
-    end
-  end
-
-  describe "#get_king_moves" do
-    it "returns the correct moves" do
-      expect(@chess.send(:get_king_moves, @chess.pieces_by_piece[:white][:wK1], :white)).to eq([])
-    end
+    
   end
 end
 
