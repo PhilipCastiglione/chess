@@ -18,29 +18,29 @@ class Pawn < Piece
   end
 
   def moves(game)
-    available_moves = []
+    m = []
     if unoccupied(move, game.pieces)
-      available_moves << move
+      m << move
       if unoccupied(double_move, game.pieces)
-        available_moves << double_move
+        m << double_move
       end
     end
-   available_moves
+   m
   end
 
   def attack_moves(game)
-    available_moves = []
+    m = []
     if (occupied_enemy(west_attack, game.pieces) ||
        game.en_passant[self.other_color].include?(west_attack)) &&
        self.col != 1
-        available_moves << west_attack
+        m << west_attack
     end
     if (occupied_enemy(east_attack, game.pieces) ||
        game.en_passant[self.other_color].include?(east_attack)) &&
        self.col != 8
-        available_moves << east_attack
+        m << east_attack
     end
-    available_moves
+    m
   end
 end
 
