@@ -7,12 +7,12 @@ class Piece
     @other_color = (@color == :white)? :black : :white
   end
 
-  def col
-    @square % 8 + 1
+  def col(square=@square)
+    square % 8 + 1
   end
 
-  def row
-    (@square - (@square % 8)) / 8 + 1
+  def row(square=@square)
+    (square - (square % 8)) / 8 + 1
   end
   
   def occupied_friendly(square, pieces)
@@ -24,7 +24,10 @@ class Piece
   end
 
   def unoccupied(square, pieces)
-    !self.occupied_friendly(square, pieces) && !self.occupied_enemy(square, pieces)
+    !self.occupied_friendly(square, pieces) &&
+    !self.occupied_enemy(square, pieces) &&
+    square >= 0 &&
+    square <= 63
   end
 end
 
