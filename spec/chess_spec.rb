@@ -43,52 +43,100 @@ describe Game do
   end
 
   context Pawn do
-
     describe "#moves" do
       it "returns the valid moves" do
-        expect(@pawn.moves(@game)).to eq([44])
+        expect(@pawn_w1.moves(@game)).to eq([23, 31])
+        expect(@pawn_w2.moves(@game)).to eq([38])
+        expect(@pawn_w3.moves(@game)).to eq([58])
+        expect(@pawn_b1.moves(@game)).to eq([5])
+        expect(@pawn_b2.moves(@game)).to eq([25])
+        expect(@pawn_b3.moves(@game)).to eq([40, 32])
       end
     end
-
     describe "#attack_moves" do
       it "returns the valid attack moves" do
-        expect(@pawn.attack_moves(@game)).to eq([])
+        expect(@pawn_w1.attack_moves(@game)).to eq([])
+        expect(@pawn_w2.attack_moves(@game)).to eq([37])
+        expect(@pawn_w3.attack_moves(@game)).to eq([])
+        expect(@pawn_b1.attack_moves(@game)).to eq([26])
+        expect(@pawn_b2.attack_moves(@game)).to eq([])
+        expect(@pawn_b3.attack_moves(@game)).to eq([])
       end
     end
-    
+  end
+
+  context Rook do
+    describe "#moves" do
+      it "returns the valid moves" do
+        expect(@rook_w.moves(@game)).to eq([0, 9, 10, 11, 16, 24, 32, 40])
+        expect(@rook_b.moves(@game)).to eq([63, 52, 53, 54, 47, 39, 31, 23])
+      end
+    end
+    describe "#attack_moves" do
+      it "returns the valid attack moves" do
+        expect(@rook_w.attack_moves(@game)).to eq([48])
+        expect(@rook_b.attack_moves(@game)).to eq([15])
+      end
+    end
   end
 
   context Knight do
-
     describe "#moves" do
       it "returns the valid moves" do
-        expect(@knight.moves(@game)).to eq([56, 58, 51, 35, 26, 24])
+        expect(@knight_w.moves(@game)).to eq([32, 25, 27, 36, 52, 59, 57])
+        expect(@knight_b.moves(@game)).to eq([36, 27, 11, 4, 6, 31, 38])
       end
     end
-
     describe "#attack_moves" do
       it "returns the valid attack moves" do
-        expect(@knight.attack_moves(@game)).to eq([])
+        expect(@knight_w.attack_moves(@game)).to eq([48])
+        expect(@knight_b.attack_moves(@game)).to eq([15])
       end
     end
-
   end
 
   context Bishop do
-
     describe "#moves" do
       it "returns the valid moves" do
-        expect(@bishop.moves(@game)).to eq([20, 27, 34, 22, 31, 6, 4])
+        expect(@bishop_w.moves(@game)).to eq([17, 19, 35, 44, 53, 62])
+        expect(@bishop_b.moves(@game)).to eq([44, 46, 28, 19, 10, 1])
       end
     end
-
     describe "#attack_moves" do
       it "returns the valid attack moves" do
-        expect(@bishop.attack_moves(@game)).to eq([41])
+        expect(@bishop_w.attack_moves(@game)).to eq([33])
+        expect(@bishop_b.attack_moves(@game)).to eq([30])
       end
     end
-
   end
 
-end
+  context Queen do
+    describe "#moves" do
+      it "returns the valid moves" do
+        expect(@queen_w.moves(@game)).to eq([22, 38, 47, 20, 11, 2, 28, 27, 36, 43])
+        expect(@queen_b.moves(@game)).to eq([35, 36, 27, 20, 43, 52, 61, 41, 25, 16])
+      end
+    end
+    describe "#attack_moves" do
+      it "returns the valid attack moves" do
+        expect(@queen_w.attack_moves(@game)).to eq([])
+        expect(@queen_b.attack_moves(@game)).to eq([])
+      end
+    end
+  end
 
+  context King do
+    describe "#moves" do
+      it "returns the valid moves" do
+        expect(@king_w.moves(@game)).to eq([3, 4, 5, 11, 19, 20])
+        expect(@king_b.moves(@game)).to eq([58, 59, 60, 52, 44, 43])
+      end
+    end
+    describe "#attack_moves" do
+      it "returns the valid attack moves" do
+        expect(@king_w.attack_moves(@game)).to eq([13, 21])
+        expect(@king_b.attack_moves(@game)).to eq([50, 42])
+      end
+    end
+  end
+end

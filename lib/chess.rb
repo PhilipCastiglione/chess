@@ -1,7 +1,10 @@
 require_relative 'chess/gosu.rb'
 require_relative 'chess/pawn.rb'
+require_relative 'chess/rook.rb'
 require_relative 'chess/knight.rb'
 require_relative 'chess/bishop.rb'
+require_relative 'chess/queen.rb'
+require_relative 'chess/king.rb'
 
 class Game
   attr_accessor :pieces, :en_passant
