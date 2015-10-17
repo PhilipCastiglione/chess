@@ -1,22 +1,6 @@
 require_relative 'piece.rb'
 
 class Bishop < Piece
-  def move_nw(position=self.square)
-    position + 7
-  end
-
-  def move_ne(position=self.square)
-    position + 9
-  end
-
-  def move_se(position=self.square)
-    position - 7
-  end
-
-  def move_sw(position=self.square)
-    position - 9
-  end
-
   def moves(game)
     m = []
     move_recurse(:move_nw, self.square, m, game)

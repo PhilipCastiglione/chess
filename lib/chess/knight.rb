@@ -1,38 +1,6 @@
 require_relative 'piece.rb'
 
 class Knight < Piece
-  def move_wnw
-    self.square + 6
-  end
-
-  def move_nnw
-    self.square + 15
-  end
-
-  def move_nne
-    self.square + 17
-  end
-
-  def move_ene
-    self.square + 10
-  end
-
-  def move_ese
-    self.square - 6
-  end
-
-  def move_sse
-    self.square - 15
-  end
-
-  def move_ssw
-    self.square - 17
-  end
-
-  def move_wsw
-    self.square - 10
-  end
-
   def moves(game)
     m = []
     if unoccupied(move_wnw, game.pieces) &&
@@ -138,6 +106,4 @@ class Knight < Piece
     end
     m
   end
-
 end
-
