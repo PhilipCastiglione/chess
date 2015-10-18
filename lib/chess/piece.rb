@@ -116,9 +116,10 @@ class Piece
 
   def move_recurse(move, square, ary, game)
     target_square = self.send(move, square)
-    if unoccupied(target_square, game.pieces)
+    if unoccupied(target_square, game.pieces) &&
+      !hit_edge(move, square)
       ary << target_square
-      move_recurse(move, target_square, ary, game) unless hit_edge(move, target_square)
+      move_recurse(move, target_square, ary, game)
     end
   end
 
@@ -126,8 +127,9 @@ class Piece
     target_square = self.send(move, square)
     if occupied_enemy(target_square, game.pieces)
       ary << target_square
-    elsif unoccupied(target_square, game.pieces)
-      attack_move_recurse(move, target_square, ary, game) unless hit_edge(move, target_square)
+    elsif unoccupied(target_square, game.pieces) &&
+      !hit_edge(move, square)
+      attack_move_recurse(move, target_square, ary, game)
     end
   end
 end
