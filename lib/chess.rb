@@ -16,5 +16,14 @@ class Game
     @castle = {white: [:wR1, :wR2], black: [:bR1, :bR2]}
     @en_passant = {white: [], black: []}
   end
-end
 
+  def start_game
+    #make stuff display
+    wait_for_move
+  end
+
+  def wait_for_move
+    
+  end
+  
+end
